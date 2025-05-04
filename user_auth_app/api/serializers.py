@@ -7,6 +7,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ['user', 'bio', 'location']
         
+class UserSerializer(serializers.ModelSerializer):
+    fullname = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'fullname']
+        
+    def get_fullname(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+
+        
 class RegistrationSerializer(serializers.ModelSerializer):
     repeated_password = serializers.CharField(write_only=True)
     fullname = serializers.CharField(write_only=True)

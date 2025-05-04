@@ -14,9 +14,26 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from .views import (
+    BoardList, 
+    BoardDetail, 
+    TaskList, 
+    TaskDetail,
+    AssignedTaskList,
+    ReviewingTaskList,
+    TaskCommentList,
+    TaskCommentDetail
+)
 
 urlpatterns = [
-    
+    path('boards/', BoardList.as_view()),
+    path('boards/<int:pk>/', BoardDetail.as_view()),
+    path('email-check/<str:email>/', BoardDetail.as_view()),
+    path('tasks/', TaskList.as_view()),
+    path('tasks/<int:pk>/', TaskDetail.as_view()),
+    path('tasks/assigned-to-me/', AssignedTaskList.as_view()),
+    path('tasks/reviewing/', ReviewingTaskList.as_view()),
+    path('tasks/<int:task_id>/comments/', TaskCommentList.as_view()),
+    path('tasks/<int:task_id>/comments/<int:pk>/', TaskCommentDetail.as_view()),
 ]
