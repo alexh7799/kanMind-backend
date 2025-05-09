@@ -39,26 +39,18 @@ python -m venv env
 pip install -r requirements.txt
 ```
 
-4. **Environment Variables**
-Create a `.env` file in the root directory:
-```env
-SECRET_KEY=your_secret_key_here
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
-5. **Database Setup**
+4. **Database Setup**
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-6. **Create Superuser (Admin)**
+5. **Create Superuser (Admin)**
 ```bash
 python manage.py createsuperuser
 ```
 
-7. **Run Development Server**
+6. **Run Development Server**
 ```bash
 python manage.py runserver
 ```
