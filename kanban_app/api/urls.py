@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.urls import path
 from .views import (
-    BoardList, 
-    BoardDetail, 
-    TaskList, 
+    BoardList,
+    BoardDetail,
+    TaskList,
     TaskDetail,
     AssignedTaskList,
     ReviewingTaskList,
