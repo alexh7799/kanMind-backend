@@ -11,12 +11,13 @@ from .serializers import (
     TaskCommentSerializer
 )
 
-"""_summary_
-BoardList is a custom view that handles the listing and creation of boards.
-Returns:
-    _type_: _description_
-"""
+
 class BoardList(generics.ListCreateAPIView):
+    """_summary_
+    BoardList is a custom view that handles the listing and creation of boards.
+    Returns:
+        _type_: _description_
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = BoardSerializer
 
@@ -31,12 +32,12 @@ class BoardList(generics.ListCreateAPIView):
             board.members.add(*members_data)
 
 
-"""_summary_
-BoardDetail is a custom view that handles the retrieval, update, and deletion of boards.
-Returns:
-    _type_: _description_
-"""
 class BoardDetail(generics.RetrieveUpdateDestroyAPIView):
+    """_summary_
+    BoardDetail is a custom view that handles the retrieval, update, and deletion of boards.
+    Returns:
+        _type_: _description_
+    """
     permission_classes = [IsAuthenticated]
     queryset = Boards.objects.all()
 
@@ -61,33 +62,31 @@ class BoardDetail(generics.RetrieveUpdateDestroyAPIView):
         return super().update(request, *args, **kwargs)
 
 
-"""_summary_
-TaskList is a custom view that handles the listing and creation of tasks.
-Returns:
-    _type_: _description_
-"""
 class TaskList(generics.ListCreateAPIView):
+    """_summary_
+    TaskList is a custom view that handles the listing and creation of tasks.
+    Returns:
+        _type_: _description_
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSerializer
 
     def get_queryset(self):
-        # Wenn board_id in URL, dann filter
         board_id = self.kwargs.get('board_id')
         if board_id:
             return Tasks.objects.filter(board_id=board_id)
         return Tasks.objects.all()
 
     def perform_create(self, serializer):
-        # board kommt jetzt aus den POST-Daten
         serializer.save()
 
 
-"""_summary_
-TaskDetail is a custom view that handles the retrieval, update, and deletion of tasks.
-Returns:
-    _type_: _description_
-"""
 class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
+    """_summary_
+    TaskDetail is a custom view that handles the retrieval, update, and deletion of tasks.
+    Returns:
+        _type_: _description_
+    """
     permission_classes = [IsAuthenticated]
     queryset = Tasks.objects.all()
 
@@ -106,12 +105,12 @@ class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
-"""_summary_
-AssignedTaskList is a custom view that handles the listing of tasks assigned to the user.
-Returns:
-    _type_: _description_
-"""
 class AssignedTaskList(generics.ListAPIView):
+    """_summary_
+    AssignedTaskList is a custom view that handles the listing of tasks assigned to the user.
+    Returns:
+        _type_: _description_
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSerializer
 
@@ -119,12 +118,12 @@ class AssignedTaskList(generics.ListAPIView):
         return Tasks.objects.filter(assignee_id=self.request.user)
 
 
-"""_summary_
-ReviewingTaskList is a custom view that handles the listing of tasks assigned to the user.
-Returns:
-    _type_: _description_
-"""
 class ReviewingTaskList(generics.ListAPIView):
+    """_summary_
+    ReviewingTaskList is a custom view that handles the listing of tasks assigned to the user.
+    Returns:
+        _type_: _description_
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSerializer
 
@@ -132,12 +131,12 @@ class ReviewingTaskList(generics.ListAPIView):
         return Tasks.objects.filter(reviewer_id=self.request.user)
 
 
-"""_summary_
-TaskCommentList is a custom view that handles the listing and creation of task comments.
-Returns:
-    _type_: _description_
-"""
 class TaskCommentList(generics.ListCreateAPIView):
+    """_summary_
+    TaskCommentList is a custom view that handles the listing and creation of task comments.
+    Returns:
+        _type_: _description_
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = TaskCommentSerializer
 
@@ -151,11 +150,11 @@ class TaskCommentList(generics.ListCreateAPIView):
         )
 
 
-"""_summary_
-TaskCommentDetail is a custom view that handles the retrieval, update, and deletion of task comments.
-Returns:
-    _type_: _description_
-"""
 class TaskCommentDetail(generics.DestroyAPIView):
+    """_summary_
+    TaskCommentDetail is a custom view that handles the retrieval, update, and deletion of task comments.
+    Returns:
+        _type_: _description_
+    """
     permission_classes = [IsAuthenticated]
     queryset = TaskComments.objects.all()

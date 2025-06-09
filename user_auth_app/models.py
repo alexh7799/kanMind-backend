@@ -3,13 +3,14 @@ from django.db import models
 
 # Create your models here.
 
-"""_summary_
-UserProfile is a model that extends the User model to include additional
-information about the user.
-Returns:
-    _type_: _description_
-"""
+
 class UserProfile(models.Model):
+    """_summary_
+    UserProfile is a model that extends the User model to include additional
+    information about the user.
+    Returns:
+        _type_: _description_
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
     location = models.CharField(max_length=100, blank=True, null=True)

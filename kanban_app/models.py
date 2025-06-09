@@ -1,11 +1,12 @@
 from django.db import models
 
-"""_summary_
-Boards is a model that represents a board in the Kanban application.
-Returns:
-    _type_: _description_
-"""
+
 class Boards(models.Model):
+    """_summary_
+    Boards is a model that represents a board in the Kanban application.
+    Returns:
+        _type_: _description_
+    """
     title = models.CharField(max_length=100)
     members = models.ManyToManyField('auth.User', related_name='board_members')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -15,12 +16,12 @@ class Boards(models.Model):
         return self.title
 
 
-"""_summary_
-Tasks is a model that represents a task in the Kanban application.
-Returns:
-    _type_: _description_
-"""
 class Tasks(models.Model):
+    """_summary_
+    Tasks is a model that represents a task in the Kanban application.
+    Returns:
+        _type_: _description_
+    """
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     board = models.ForeignKey(
@@ -41,12 +42,12 @@ class Tasks(models.Model):
         return self.title
 
 
-"""_summary_
-TaskComments is a model that represents comments on tasks.
-Returns:
-    _type_: _description_
-"""
 class TaskComments(models.Model):
+    """_summary_
+    TaskComments is a model that represents comments on tasks.
+    Returns:
+        _type_: _description_
+    """
     task = models.ForeignKey(
         Tasks, related_name='comments', on_delete=models.CASCADE)
     user = models.ForeignKey(

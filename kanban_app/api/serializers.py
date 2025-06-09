@@ -3,12 +3,13 @@ from kanban_app.models import Boards, Tasks, TaskComments
 from django.contrib.auth.models import User
 from user_auth_app.api.serializers import UserSerializer
 
-"""_summary_
-TaskCommentSerializer is a serializer for the TaskComments model.
-Returns:
-    _type_: _description_
-"""
+
 class TaskCommentSerializer(serializers.ModelSerializer):
+    """_summary_
+    TaskCommentSerializer is a serializer for the TaskComments model.
+    Returns:
+        _type_: _description_
+    """
     author = serializers.CharField(read_only=True)
 
     class Meta:
@@ -16,12 +17,12 @@ class TaskCommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'content', 'author', 'created_at']
 
 
-"""_summary_
-TaskSerializer is a serializer for the Tasks model.
-Returns:
-    _type_: _description_
-"""
 class TaskSerializer(serializers.ModelSerializer):
+    """_summary_
+    TaskSerializer is a serializer for the Tasks model.
+    Returns:
+        _type_: _description_
+    """
     assignee = UserSerializer(source='assignee_id', read_only=True)
     reviewer = UserSerializer(source='reviewer_id', read_only=True)
     assignee_id = serializers.PrimaryKeyRelatedField(
@@ -40,23 +41,23 @@ class TaskSerializer(serializers.ModelSerializer):
         return obj.comments.count()
 
 
-"""_summary_
-TaskStatusSerializer is a serializer for the Tasks model's status field.
-Returns:
-    _type_: _description_
-"""
 class TaskStatusSerializer(serializers.ModelSerializer):
+    """_summary_
+    TaskStatusSerializer is a serializer for the Tasks model's status field.
+    Returns:
+        _type_: _description_
+    """
     class Meta:
         model = Tasks
         fields = ['status']
 
 
-"""_summary_
-BoardSerializer is a serializer for the Boards model.
-Returns:
-    _type_: _description_
-"""
 class BoardSerializer(serializers.ModelSerializer):
+    """_summary_
+    BoardSerializer is a serializer for the Boards model.
+    Returns:
+        _type_: _description_
+    """
     members = UserSerializer(many=True, read_only=True)
     member_count = serializers.SerializerMethodField()
     ticket_count = serializers.SerializerMethodField()
@@ -81,12 +82,12 @@ class BoardSerializer(serializers.ModelSerializer):
         return obj.tasks.filter(priority='high').count()
 
 
-"""_summary_
-BoardDetailSerializer is a serializer for the Boards model with detailed information.
-Returns:
-    _type_: _description_
-"""
 class BoardDetailSerializer(serializers.ModelSerializer):
+    """_summary_
+    BoardDetailSerializer is a serializer for the Boards model with detailed information.
+    Returns:
+        _type_: _description_
+    """
     members = UserSerializer(many=True, read_only=True)
     tasks = TaskSerializer(many=True, read_only=True)
 
