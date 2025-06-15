@@ -3,9 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from kanban_app.models import Boards, Tasks, TaskComments
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from .serializers import (
     BoardSerializer,
     BoardDetailSerializer,
+    BoardUpdateSerializer,
     TaskSerializer,
     TaskStatusSerializer,
     TaskCommentSerializer
@@ -25,7 +28,7 @@ class BoardList(generics.ListCreateAPIView):
         return Boards.objects.filter(members=self.request.user)
 
     def perform_create(self, serializer):
-        board = serializer.save()
+        board = serializer.save(owner_id=self.request.user)
         board.members.add(self.request.user)
         members_data = self.request.data.get('members', [])
         if members_data:
@@ -42,6 +45,8 @@ class BoardDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Boards.objects.all()
 
     def get_serializer_class(self):
+        if self.request.method in ['PATCH', 'PUT']:
+            return BoardUpdateSerializer
         if self.request.method == 'GET':
             return BoardDetailSerializer
         return BoardSerializer
@@ -50,16 +55,24 @@ class BoardDetail(generics.RetrieveUpdateDestroyAPIView):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(
-            instance, data=request.data, partial=partial)
+            instance,
+            data=request.data,
+            partial=partial
+        )
         serializer.is_valid(raise_exception=True)
-        if len(request.data) == 1 and 'members' in request.data:
-            instance.members.clear()
-            instance.members.add(self.request.user)
-            members_data = request.data.get('members', [])
-            if members_data:
-                instance.members.add(*members_data)
-            return Response(serializer.data)
-        return super().update(request, *args, **kwargs)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Prüfe explizit ob der User der Owner ist
+        if instance.owner_id.id != request.user.id:
+            return Response(
+                {"error": "Only the board owner can delete this board"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TaskList(generics.ListCreateAPIView):
@@ -144,10 +157,23 @@ class TaskCommentList(generics.ListCreateAPIView):
         return TaskComments.objects.filter(task_id=self.kwargs['task_id'])
 
     def perform_create(self, serializer):
-        serializer.save(
-            task_id=self.kwargs['task_id'],
-            user=self.request.user
-        )
+        task = get_object_or_404(Tasks, id=self.kwargs['task_id'])
+        serializer.save(task=task, user=self.request.user)
+
+    # def perform_create(self, serializer):
+    #     serializer.save(
+    #         task_id=self.kwargs['task_id'],
+    #         user=self.request.user
+    #     )
+        
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except Http404:
+            return Response(
+                {"error": f"Task with id {self.kwargs['task_id']} does not exist"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class TaskCommentDetail(generics.DestroyAPIView):

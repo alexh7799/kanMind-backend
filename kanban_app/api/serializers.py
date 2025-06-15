@@ -2,6 +2,10 @@ from rest_framework import serializers
 from kanban_app.models import Boards, Tasks, TaskComments
 from django.contrib.auth.models import User
 from user_auth_app.api.serializers import UserSerializer
+from .permissions import IsBoardOwner
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import generics, status
 
 
 class TaskCommentSerializer(serializers.ModelSerializer):
@@ -58,16 +62,20 @@ class BoardSerializer(serializers.ModelSerializer):
     Returns:
         _type_: _description_
     """
-    members = UserSerializer(many=True, read_only=True)
+    members = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), write_only=True)
     member_count = serializers.SerializerMethodField()
     ticket_count = serializers.SerializerMethodField()
     tasks_to_do_count = serializers.SerializerMethodField()
     tasks_high_prio_count = serializers.SerializerMethodField()
+    owner_id = serializers.PrimaryKeyRelatedField(read_only=True) 
 
     class Meta:
         model = Boards
         fields = ['id', 'title', 'members', 'member_count', 'ticket_count',
-                  'tasks_to_do_count', 'tasks_high_prio_count']
+                  'tasks_to_do_count', 'tasks_high_prio_count', 'owner_id']
+        extra_kwargs = {
+            'members': {'write_only': True}
+        }
 
     def get_member_count(self, obj):
         return obj.members.count()
@@ -88,9 +96,37 @@ class BoardDetailSerializer(serializers.ModelSerializer):
     Returns:
         _type_: _description_
     """
+    permission_classes = [IsAuthenticated, IsBoardOwner]
+    queryset = Boards.objects.all()
+    
     members = UserSerializer(many=True, read_only=True)
     tasks = TaskSerializer(many=True, read_only=True)
+    owner_id = serializers.PrimaryKeyRelatedField(read_only=True) 
 
     class Meta:
         model = Boards
-        fields = ['id', 'title', 'members', 'tasks']
+        fields = ['id', 'title', 'members', 'tasks', 'owner_id']
+        
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.owner_id != request.user:
+            return Response(
+                {"error": "Only the board owner can delete this board"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BoardUpdateSerializer(serializers.ModelSerializer):
+    """_summary_
+    BoardUpdateSerializer is a serializer for the Boards model used for updates.
+    Args:
+        serializers (_type_): _description_
+    """
+    owner_data = UserSerializer(source='owner_id', read_only=True)
+    members_data = UserSerializer(source='members', many=True, read_only=True)
+
+    class Meta:
+        model = Boards
+        fields = ['id', 'title', 'owner_data', 'members_data']

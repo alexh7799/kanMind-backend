@@ -9,6 +9,11 @@ class Boards(models.Model):
     """
     title = models.CharField(max_length=100)
     members = models.ManyToManyField('auth.User', related_name='board_members')
+    owner_id = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='owned_boards'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
