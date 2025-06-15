@@ -2,6 +2,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
+from .permissions import IsBoardMemberOrOwner
 from kanban_app.models import Boards, Tasks, TaskComments
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -41,7 +42,7 @@ class BoardDetail(generics.RetrieveUpdateDestroyAPIView):
     Returns:
         _type_: _description_
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsBoardMemberOrOwner]
     queryset = Boards.objects.all()
 
     def get_serializer_class(self):
@@ -159,12 +160,6 @@ class TaskCommentList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         task = get_object_or_404(Tasks, id=self.kwargs['task_id'])
         serializer.save(task=task, user=self.request.user)
-
-    # def perform_create(self, serializer):
-    #     serializer.save(
-    #         task_id=self.kwargs['task_id'],
-    #         user=self.request.user
-    #     )
         
     def post(self, request, *args, **kwargs):
         try:
